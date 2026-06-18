@@ -131,9 +131,9 @@ func (c *CacheService) Get(ctx context.Context, key string, opts *GetOptions) (*
 
 	var lastErr error
 	for _, backend := range backends {
-		if !c.circuitManager.Execute(backend.ID(), func() error {
+		if err := c.circuitManager.Execute(backend.ID(), func() error {
 			return nil
-		}) {
+		}); err != nil {
 			lastErr = circuit.ErrCircuitOpen
 			continue
 		}
@@ -256,9 +256,9 @@ func (c *CacheService) setCacheAside(ctx context.Context, entry *storage.Entry, 
 		return err
 	}
 
-	if !c.circuitManager.Execute(backend.ID(), func() error {
+	if err := c.circuitManager.Execute(backend.ID(), func() error {
 		return nil
-	}) {
+	}); err != nil {
 		if c.metrics != nil {
 			c.metrics.RecordError(backend.ID(), "set", 503)
 			c.metrics.RecordRequest(backend.ID(), "set", "circuit_open")
@@ -290,9 +290,9 @@ func (c *CacheService) setWriteThrough(ctx context.Context, entry *storage.Entry
 		return err
 	}
 
-	if !c.circuitManager.Execute(backend.ID(), func() error {
+	if err := c.circuitManager.Execute(backend.ID(), func() error {
 		return nil
-	}) {
+	}); err != nil {
 		if c.metrics != nil {
 			c.metrics.RecordError(backend.ID(), "set", 503)
 			c.metrics.RecordRequest(backend.ID(), "set", "circuit_open")
@@ -348,9 +348,9 @@ func (c *CacheService) setPassthrough(ctx context.Context, entry *storage.Entry,
 		return err
 	}
 
-	if !c.circuitManager.Execute(backend.ID(), func() error {
+	if err := c.circuitManager.Execute(backend.ID(), func() error {
 		return nil
-	}) {
+	}); err != nil {
 		return circuit.ErrCircuitOpen
 	}
 
@@ -385,9 +385,9 @@ func (c *CacheService) Delete(ctx context.Context, key string, opts *DeleteOptio
 		return err
 	}
 
-	if !c.circuitManager.Execute(backend.ID(), func() error {
+	if err := c.circuitManager.Execute(backend.ID(), func() error {
 		return nil
-	}) {
+	}); err != nil {
 		return circuit.ErrCircuitOpen
 	}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	neturl "net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -121,7 +122,7 @@ func (h *HTTPBackend) Get(ctx context.Context, key string) (*storage.Entry, erro
 		return nil, storage.ErrBackendUnhealthy
 	}
 
-	url := fmt.Sprintf("%sget?%s=%s", h.baseURL, h.keyParam, fasthttp.URIEncodeString(key))
+	url := fmt.Sprintf("%sget?%s=%s", h.baseURL, h.keyParam, neturl.QueryEscape(key))
 
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
@@ -195,8 +196,8 @@ func (h *HTTPBackend) Set(ctx context.Context, entry *storage.Entry) error {
 	h.addHeaders(req)
 
 	body := fmt.Sprintf("%s=%s&%s=%s&%s=%d",
-		h.keyParam, fasthttp.URIEncodeString(entry.Key),
-		h.valueParam, fasthttp.URIEncodeString(string(entry.Value)),
+		h.keyParam, neturl.QueryEscape(entry.Key),
+		h.valueParam, neturl.QueryEscape(string(entry.Value)),
 		h.ttlParam, int(ttl.Seconds()),
 	)
 	req.SetBodyString(body)
@@ -219,7 +220,7 @@ func (h *HTTPBackend) Delete(ctx context.Context, key string) error {
 		return storage.ErrBackendUnhealthy
 	}
 
-	url := fmt.Sprintf("%sdelete?%s=%s", h.baseURL, h.keyParam, fasthttp.URIEncodeString(key))
+	url := fmt.Sprintf("%sdelete?%s=%s", h.baseURL, h.keyParam, neturl.QueryEscape(key))
 
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
@@ -248,7 +249,7 @@ func (h *HTTPBackend) Exists(ctx context.Context, key string) (bool, error) {
 		return false, storage.ErrBackendUnhealthy
 	}
 
-	url := fmt.Sprintf("%sexists?%s=%s", h.baseURL, h.keyParam, fasthttp.URIEncodeString(key))
+	url := fmt.Sprintf("%sexists?%s=%s", h.baseURL, h.keyParam, neturl.QueryEscape(key))
 
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()

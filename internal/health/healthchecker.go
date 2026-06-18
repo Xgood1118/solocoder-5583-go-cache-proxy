@@ -227,10 +227,8 @@ func (hc *HealthChecker) checkTCP(status *backendHealthStatus) error {
 func (hc *HealthChecker) extractAddr(backend storage.Backend) string {
 	switch backend.Type() {
 	case string(config.BackendTypeRedis):
-		if b, ok := backend.(interface{ Client() interface{ Options() *struct { Addr string } } }); ok {
-			if opts := b.Client().Options(); opts != nil {
-				return opts.Addr
-			}
+		if b, ok := backend.(interface{ GetAddr() string }); ok {
+			return b.GetAddr()
 		}
 	case string(config.BackendTypeHTTP):
 		if b, ok := backend.(interface{ GetBaseURL() string }); ok {

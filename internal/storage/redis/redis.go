@@ -203,6 +203,14 @@ func (r *RedisBackend) Client() *goredis.Client {
 	return r.client
 }
 
+func (r *RedisBackend) GetAddr() string {
+	opts := r.client.Options()
+	if opts != nil {
+		return opts.Addr
+	}
+	return ""
+}
+
 func (r *RedisBackend) versionKey(key string) string {
 	return fmt.Sprintf("%s:version", key)
 }

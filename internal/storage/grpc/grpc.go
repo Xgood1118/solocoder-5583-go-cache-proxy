@@ -22,6 +22,7 @@ type GRPCBackend struct {
 	mu         sync.RWMutex
 	conn       *grpc.ClientConn
 	client     KVServiceClient
+	addr       string
 	timeout    time.Duration
 	defaultTTL time.Duration
 }
@@ -181,6 +182,7 @@ func New(id string, name string, weight int, cfg *config.GRPCBackendConfig) (*GR
 		healthy:    true,
 		conn:       conn,
 		client:     client,
+		addr:       addr,
 		timeout:    timeout,
 		defaultTTL: 5 * time.Minute,
 	}, nil
@@ -322,7 +324,7 @@ func (g *GRPCBackend) Ping(ctx context.Context) error {
 }
 
 func (g *GRPCBackend) GetAddr() string {
-	return ""
+	return g.addr
 }
 
 func (g *GRPCBackend) Close() error {

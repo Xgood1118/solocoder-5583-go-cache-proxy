@@ -186,7 +186,13 @@ func (g *GossipProtocol) Publish(key string) error {
 		return fmt.Errorf("failed to marshal gossip message: %w", err)
 	}
 
-	g.memberlist.SendToAll(data)
+	for _, member := range g.memberlist.Members() {
+		if member.Name == g.nodeID {
+			continue
+		}
+		_ = g.memberlist.SendBestEffort(member, data)
+	}
+
 	logger.Debug().Str("key", key).Msg("Broadcasted gossip invalidation message")
 
 	return nil

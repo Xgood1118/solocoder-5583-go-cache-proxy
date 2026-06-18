@@ -1,0 +1,5 @@
+这个缓存代理根本起不来。我一拉 go.mod 直接报错——gocron 那行写的是 v2 但 require 没带 /v2 路径后缀，go 解析模块路径对不上，整个项目编译失败，8090 端口根本起不来，所有 /api/... 接口都不可达。
+
+另外 healthchecker 那边 extractAddr 的类型断言写得太死了，硬卡在匿名 struct{ Addr string } 上，但 go-redis 实际的 Options() 返回的是命名 struct，这个分支永远走不到，Redis 后端的健康检查地址永远拿不到。
+
+gRPC 后端那个 GetAddr 直接返回空字符串占位，导致 SWIM 探活和负载均衡都没法知道这个实例的地址，等于在黑盒里调度。检查修复一下。
